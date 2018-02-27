@@ -45,4 +45,5 @@ export default config;
 * Alert `trampos@eokoe.com` when new answer is submitted;
 * Show lists of current vacancies;
 * Ability to remove a vacancies;
+* Ability to send cv file after registering questions;
 
