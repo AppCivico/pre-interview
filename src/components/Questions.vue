@@ -1,7 +1,7 @@
 <template>
 	<div>
 	<h1>Questões</h1>
-		<div v-if="currentQuestion.title">
+		<div v-if="currentQuestion">
 			<form @submit.prevent="saveAnswer">
 				<h2>{{ currentQuestion.title }}</h2>
 				<textarea
@@ -27,38 +27,69 @@
 						Sim, enviar respostas
 					</button>
 				</template>
+
+				<hr>
+				<p v-if="errorMessage !== ''">{{ errorMessage }}</p>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+import { firebaseApp } from '../firebase';
 import questionsLibrary from '../questions';
 
 export default {
 	name: 'Questions',
+	props: {
+		id: [String, Number],
+	},
 	data() {
 		return {
 			answer: '',
 			answers: {},
 			current: 0,
+			errorMessage: '',
 			finish: false,
 			loading: false,
 		};
+	},
+	mounted() {
+		if (this.candidate === '') {
+			// eslint-disable-next-line
+			alert('É necessário informar o e-mail');
+			this.$router.push({
+				path: '/',
+				query: { vacancy: this.id },
+			});
+		} else {
+			firebaseApp.auth().signInAnonymously()
+				.then(() => {
+					this.$store.dispatch('LOAD_VACANCY', this.id);
+					this.getLocalstorage();
+				})
+				.catch((error) => {
+					const errorCode = error.code;
+					const errorMessage = error.message;
+					// eslint-disable-next-line
+					console.error(`Ocorreeeeeu um erro, mais detalhes: ${errorMessage}. Código: ${errorCode}`);
+				});
+		}
 	},
 	computed: {
 		candidate() {
 			return this.$store.state.candidate;
 		},
+		vacancy() {
+			return this.$store.state.vacancy;
+		},
 		questions() {
-			return questionsLibrary.filter(question => question.level === this.candidate.level);
+			return questionsLibrary.filter(question => question.level === this.vacancy.level
+				&& question.area === this.vacancy.area);
 		},
 		currentQuestion() {
 			return this.questions[this.current];
 		},
-	},
-	mounted() {
-		this.getLocalstorage();
 	},
 	methods: {
 		saveAnswer() {
@@ -98,7 +129,23 @@ export default {
 		},
 		sendQuestions() {
 			this.loading = true;
-			console.log(JSON.stringify(this.answers));
+			const data = {
+				candidate: this.candidate,
+				answers: this.answers,
+			};
+			firebaseApp.database().ref(`/answers/${this.id}`).push(data)
+				.then(() => {
+					// eslint-disable-next-line
+					alert('Suas repostas foram salvas com sucesso! Entraremos em contato assim que possível!');
+					this.$router.push({
+						path: '/',
+						query: { vacancy: this.id },
+					});
+				})
+				.catch((err) => {
+					this.errorMessage = `Erro no registro: ${err}`;
+					this.loading = false;
+				});
 		},
 		saveLocalstorage() {
 			if (window.localStorage) {
@@ -108,7 +155,8 @@ export default {
 		getLocalstorage() {
 			if (window.localStorage) {
 				const answers = localStorage.getItem('eokoe-teste-answers');
-				if (answers) {
+				console.log('answers', answers);
+				if (answers !== null) {
 					this.answers = JSON.parse(answers);
 					this.answer = this.answers[`question_${this.currentQuestion.id}`].answer;
 				}
