@@ -1,8 +1,8 @@
-# eokoe-teste
+# Trump aqui
 
-> A Vue.js project
+> Ambiente de teste para candidatos a vagas na Eokoe/AppCívico
 
-## Build Setup
+## Vue Build Setup
 
 ``` bash
 # install dependencies
@@ -18,4 +18,29 @@ npm run build
 npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## Firebase deploy
+
+1 - Create `src/config.js` file.
+
+```js
+const config = {
+	apiKey: '',
+	authDomain: '',
+	databaseURL: '',
+	projectId: '',
+	storageBucket: '',
+	messagingSenderId: '',
+};
+
+export default config;
+
+```
+
+2 - Run `firebase deploy --only hosting`
+
+## Roadmap
+
+* Make it beautiful;
+* Edit questions library to use a .json and read markdown;
+* Alert `trampos@eokoe.com` when new answer is submitted;
+
