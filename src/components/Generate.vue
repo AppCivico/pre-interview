@@ -50,7 +50,7 @@ export default {
 				firebaseApp.database().ref('/vacancies').push(data)
 					.then((res) => {
 						this.errorMessage = '';
-						this.successMessage = `Vaga registrada com sucesso! Agora é só divulgar o link 'https://eokoe-teste.firebaseapp.com/?vacancy=${res.key}'.`;
+						this.successMessage = `Vaga registrada com sucesso! Agora é só divulgar o link 'https://eokoe-teste.firebaseapp.com/#/?vacancy=${res.key}'.`;
 						this.loading = false;
 					})
 					.catch((err) => {
