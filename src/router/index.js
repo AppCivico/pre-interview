@@ -13,11 +13,14 @@ export default new Router({
 			path: '/',
 			name: 'Home',
 			component: Home,
+			query: { vacancy: true },
 		},
 		{
-			path: '/questions',
+			path: '/questions/:id',
 			name: 'Questions',
 			component: Questions,
+			props: true,
+			meta: { requiresEmail: true },
 		},
 		{
 			path: '/login',
