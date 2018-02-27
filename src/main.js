@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import VueFire from 'vuefire';
+import { sync } from 'vuex-router-sync';
 
 import App from './App';
 import router from './router';
@@ -24,6 +25,8 @@ router.beforeEach((to, from, next) => {
 		next();
 	}
 });
+
+sync(store, router);
 
 /* eslint-disable no-new */
 new Vue({
