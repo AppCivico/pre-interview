@@ -43,4 +43,6 @@ export default config;
 * Make it beautiful;
 * Edit questions library to use a .json and read markdown;
 * Alert `trampos@eokoe.com` when new answer is submitted;
+* Show lists of current vacancies;
+* Ability to remove a vacancies;
 
