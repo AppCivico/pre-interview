@@ -1,11 +1,16 @@
 <template>
 	<div>
-		<h1>Gerar novo teste</h1>
+		<h1>Gerar nova vaga</h1>
 		<form @submit.prevent="generate">
-			<input type="text" v-model="name" placeholder="Nome">
-			<input type="email" v-model="email" placeholder="E-mail">
+			<select name="area" v-model="area">
+				<option value="">Selecionar a área</option>
+				<option value="front">Front-end</option>
+				<option value="back">Back-end</option>
+				<option value="android">Android</option>
+				<option value="ios">iOS</option>
+			</select>
 			<select name="level" v-model="level">
-				<option value="">Selecionar o nível do candidato</option>
+				<option value="">Selecionar o nível</option>
 				<option value="junior">Júnior</option>
 				<option value="medium">Pleno</option>
 				<option value="senior">Senior</option>
@@ -26,8 +31,7 @@ export default {
 	data() {
 		return {
 			loading: false,
-			name: '',
-			email: '',
+			area: '',
 			level: '',
 			errorMessage: '',
 			successMessage: '',
@@ -37,16 +41,16 @@ export default {
 		generate() {
 			this.loading = true;
 
-			const { name, email, level } = this;
-			const data = { name, email, level };
+			const { area, level } = this;
+			const data = { area, level };
 			const validation = this.validate(data);
 
 			if (validation.valid) {
 				this.errorMessage = '';
-				firebaseApp.database().ref('/candidates').push(data)
+				firebaseApp.database().ref('/vacancies').push(data)
 					.then((res) => {
 						this.errorMessage = '';
-						this.successMessage = `Usuário registrado com sucesso com id "${res.key}". Agora é só enviar um e-mail para "${email}"" com o convite para o teste!`;
+						this.successMessage = `Vaga registrada com sucesso! Agora é só divulgar o link 'https://eokoe-teste.firebaseapp.com/?vacancy=${res.key}'.`;
 						this.loading = false;
 					})
 					.catch((err) => {
