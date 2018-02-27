@@ -52,6 +52,8 @@ export default {
 			errorMessage: '',
 			finish: false,
 			loading: false,
+			vacancy: {},
+			checked: false,
 		};
 	},
 	mounted() {
@@ -65,23 +67,20 @@ export default {
 		} else {
 			firebaseApp.auth().signInAnonymously()
 				.then(() => {
-					this.$store.dispatch('LOAD_VACANCY', this.id);
+					this.loadVacancy();
 					this.getLocalstorage();
 				})
 				.catch((error) => {
 					const errorCode = error.code;
 					const errorMessage = error.message;
 					// eslint-disable-next-line
-					console.error(`Ocorreeeeeu um erro, mais detalhes: ${errorMessage}. Código: ${errorCode}`);
+					console.error(`Ocorreu um erro, mais detalhes: ${errorMessage}. Código: ${errorCode}`);
 				});
 		}
 	},
 	computed: {
 		candidate() {
 			return this.$store.state.candidate;
-		},
-		vacancy() {
-			return this.$store.state.vacancy;
 		},
 		questions() {
 			return questionsLibrary.filter(question => question.level === this.vacancy.level
@@ -92,6 +91,37 @@ export default {
 		},
 	},
 	methods: {
+		loadVacancy() {
+			if (!this.checked) {
+				const ref = firebaseApp.database().ref(`answers/${this.id}`);
+				ref.orderByChild('candidate').equalTo(this.candidate).once('value').then((snap) => {
+					if (snap.exists()) {
+						// eslint-disable-next-line
+						alert('Questionário já respondido!');
+						this.$router.push({
+							path: '/',
+							query: { vacancy: this.id },
+						});
+					} else {
+						const vacancySnapshot = firebaseApp.database().ref(`vacancies/${this.id}`);
+						vacancySnapshot.once('value').then((snapshot) => {
+							const vacancy = snapshot.val();
+							if (vacancy) {
+								this.vacancy = vacancy;
+							} else {
+								// eslint-disable-next-line
+								alert('Vaga não encontrada!');
+								this.$router.push({
+									path: '/',
+									query: { vacancy: this.id },
+								});
+							}
+						});
+					}
+				});
+				this.checked = true;
+			}
+		},
 		saveAnswer() {
 			// save answer
 			this.answers[`question_${this.currentQuestion.id}`] = {
@@ -155,8 +185,7 @@ export default {
 		getLocalstorage() {
 			if (window.localStorage) {
 				const answers = localStorage.getItem('eokoe-teste-answers');
-				console.log('answers', answers);
-				if (answers !== null) {
+				if (answers !== null && answers !== '') {
 					this.answers = JSON.parse(answers);
 					this.answer = this.answers[`question_${this.currentQuestion.id}`].answer;
 				}
