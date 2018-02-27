@@ -28,8 +28,10 @@ export default {
 
 				// check if user if from eokoe
 				if (user.email.indexOf('@eokoe.com') >= 0) {
-					this.$store.dispatch('SAVE_EOKOE_USER', user);
-					this.$router.push({ path: '/generate' });
+					this.$store.dispatch('SAVE_EOKOE_USER', user)
+						.then(() => {
+							this.$router.push({ path: '/generate' });
+						});
 				} else {
 					this.errorMessage = 'Seu e-mail não é autorizado para este acesso';
 				}
