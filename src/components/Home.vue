@@ -22,8 +22,6 @@
 </template>
 
 <script>
-import { firebaseApp } from '../firebase';
-
 export default {
 	name: 'Home',
 	data() {
@@ -33,6 +31,12 @@ export default {
 			errorMessage: '',
 		};
 	},
+	mounted() {
+		if (!this.$route.query.vacancy) {
+			// eslint-disable-next-line
+			alert('ID da vaga é obrigatório. Entre em contato conosco.');
+		}
+	},
 	methods: {
 		login() {
 			this.loading = true;
@@ -41,23 +45,9 @@ export default {
 				this.loading = false;
 				this.errorMessage = 'Informe o seu e-mail para dar início ao teste!';
 			} else {
-				this.checkCandidate(email);
+				this.$store.dispatch('SAVE_CANDIDATE', email);
+				this.$router.push({ path: `/questions/${this.$route.query.vacancy}` });
 			}
-		},
-		checkCandidate(email) {
-			console.log('check');
-			const ref = firebaseApp.database().ref('candidates');
-			ref.orderByChild('email').equalTo(email).on('child_added', (snapshot) => {
-				const res = snapshot.val();
-				console.log(res);
-				if (res) {
-					this.$store.dispatch('SAVE_CANDIDATE', res);
-					this.$router.push({ path: '/questions' });
-				} else {
-					this.loading = false;
-					this.errorMessage = 'Seu e-mail não foi localizado no nosso cadastro. Entre em contato informando o problema.';
-				}
-			});
 		},
 	},
 };
